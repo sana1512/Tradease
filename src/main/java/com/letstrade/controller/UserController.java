@@ -28,8 +28,6 @@ import com.letstrade.utils.OtpUtils;
 import com.letstrade.request.ForgotPasswordTokenRequest;
 import com.letstrade.request.ResetPasswordRequest;
 
-import jakarta.mail.MessagingException;
-
 @RestController
 public class UserController {
 
@@ -45,24 +43,19 @@ public class UserController {
     @Autowired
     private ForgotPasswordService forgotPasswordService;
 
-    private String jwt;
+    //private String jwt;
 
     @GetMapping("/api/users/profile")
-    public ResponseEntity<User> getUserProfile(@RequestHeader("Authorization") String jwt){
+    public ResponseEntity<User> getUserProfile(@RequestHeader("Authorization") String jwt) throws Exception{
         User user = userService.findUserProfileByJwt(jwt);
 
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    /**
-     * @param jwt
-     * @param verificationType
-     * @return
-     * @throws MessagingException
-     */
+    
     @PostMapping("/api/users/verification/{verificationType}/send-otp")
     public ResponseEntity<String> sendVerificationOtp(@RequestHeader("Authorization") String jwt, 
-                                                    @PathVariable VerificationType verificationType) throws MessagingException{
+                                                    @PathVariable VerificationType verificationType) throws Exception{
         User user = userService.findUserProfileByJwt(jwt);
 
         VerificationCode verificationCode = verificationCodeService.getVerificationCodeByUser(user.getId());
@@ -81,7 +74,7 @@ public class UserController {
     @PatchMapping("/api/users/enable-two-factor/verify-otp/{otp}")
     public ResponseEntity<User> enableTwoFactorAuthentication(
         @PathVariable String otp,
-        @RequestHeader("Authorization") String jwt){
+        @RequestHeader("Authorization") String jwt) throws Exception{
         User user = userService.findUserProfileByJwt(jwt);
 
         VerificationCode verificationCode = verificationCodeService.getVerificationCodeByUser(user.getId());
@@ -95,11 +88,11 @@ public class UserController {
             verificationCodeService.deleteVerificationCodeById(verificationCode);
             return new ResponseEntity<>(updatedUser,HttpStatus.OK);
         }
-        throw new RuntimeException("Invalid OTP was entered");
+        throw new Exception("Invalid OTP was entered");
     }
 
     @PostMapping("/auth/users/reset-password/{verificationType}/send-otp")
-    public ResponseEntity<AuthResponse> sendForgotPasswordOtp(@RequestBody ForgotPasswordTokenRequest req) throws MessagingException{
+    public ResponseEntity<AuthResponse> sendForgotPasswordOtp(@RequestBody ForgotPasswordTokenRequest req) throws Exception{
         
         User user = userService.findUserByEmail(req.getSendTo());
         String otp = OtpUtils.generateOTP();
@@ -126,7 +119,7 @@ public class UserController {
     public ResponseEntity<ApiResponse> resetPassword(
         @RequestParam String id,
         @RequestBody ResetPasswordRequest req,
-        @RequestHeader("Authorization") String jwt){
+        @RequestHeader("Authorization") String jwt) throws Exception{
 
         ForgotPasswordToken forgotPasswordToken = forgotPasswordService.findById(id);
 
@@ -138,6 +131,6 @@ public class UserController {
             res.setMessage("password update successfull!");
             return new ResponseEntity<>(res,HttpStatus.ACCEPTED);
         }
-        throw new RuntimeException("Wrong OTP");
+        throw new Exception("Wrong OTP");
     }
 }

@@ -18,33 +18,33 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
 
     @Override
-    public User findUserProfileByJwt(String jwt) {
+    public User findUserProfileByJwt(String jwt) throws Exception {
         String email = JwtProvider.getEmailFromToken(jwt);
         User user = userRepository.findByEmail(email);
 
         if(user==null){
-            throw new RuntimeException("User Not Found");
+            throw new Exception("User Not Found");
         }
         return user;
     }
 
     @Override
-    public User findUserByEmail(String email) {
+    public User findUserByEmail(String email) throws Exception {
         User user = userRepository.findByEmail(email);
 
         if(user==null){
-            throw new RuntimeException("User Not Found");
+            throw new Exception("User Not Found");
         }
         return user;
 
     }
 
     @Override
-    public User findUserById(Long userId) {
+    public User findUserById(Long userId) throws Exception {
         
         Optional<User> user = userRepository.findById(userId);
         if(user.isEmpty()){
-            throw new RuntimeException("user not found");
+            throw new Exception("user not found");
         }
         return user.get();
     }
@@ -65,6 +65,4 @@ public class UserServiceImpl implements UserService{
         user.setPassword(newPassword);
         return userRepository.save(user);
     }
-
-
 }
