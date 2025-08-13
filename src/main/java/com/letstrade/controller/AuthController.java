@@ -9,6 +9,7 @@ import com.letstrade.response.AuthResponse;
 import com.letstrade.service.CustomUserDetailsService;
 import com.letstrade.service.EmailService;
 import com.letstrade.service.TwoFactorOtpService;
+import com.letstrade.service.WatchlistService;
 import com.letstrade.utils.OtpUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,9 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private WatchlistService watchlistService;
+
     AuthController(TwoFactorOtpRepository twoFactorOtpRepository) {
         this.twoFactorOtpRepository = twoFactorOtpRepository;
     }
@@ -62,6 +66,7 @@ public class AuthController {
         newUser.setPassword(user.getPassword());
         newUser.setFullname(user.getFullname());
         User savedUser = userRepository.save(newUser);
+        watchlistService.createWatchlist(savedUser);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
                                     user.getEmail(), 
