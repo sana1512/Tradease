@@ -3,7 +3,7 @@ package com.letstrade.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import com.letstrade.config.JwtProvider;
 import com.letstrade.domain.VerificationType;
@@ -11,7 +11,7 @@ import com.letstrade.model.TwoFactorAuth;
 import com.letstrade.model.User;
 import com.letstrade.repository.UserRepository;
 
-@RestController
+@Service
 public class UserServiceImpl implements UserService{
 
     @Autowired

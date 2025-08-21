@@ -1,6 +1,8 @@
 package com.letstrade.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import com.letstrade.domain.WalletTransactionType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,12 +22,14 @@ public class WalletTransaction {
     @ManyToOne
     private Wallet wallet;
 
-    private LocalDate date;
+    private WalletTransactionType type;
 
-    private String transferId;
+    private LocalDateTime date;
+
+    private Long transferId;
 
     private String purpose;
 
-    private Long amount;
+    private double amount;
     
 }

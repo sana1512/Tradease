@@ -19,7 +19,7 @@ import com.razorpay.RazorpayException;
 import com.stripe.exception.StripeException;
 
 @RestController
-@RequestMapping("/api")
+//@RequestMapping("/api")
 public class PaymentController {
 
     @Autowired

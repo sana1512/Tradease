@@ -12,7 +12,7 @@ public interface PaymentService {
 
     PaymentOrder getPaymentOrderById(Long id)throws Exception;
 
-    Boolean proceedPaymentOrder(PaymentOrder paymentOrder, String paymentId);
+    Boolean proceedPaymentOrder(PaymentOrder paymentOrder);
 
     PaymentResponse createStripePaymentLink(User user, Long amount, Long orderId)throws StripeException;
 }

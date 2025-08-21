@@ -9,13 +9,17 @@ import org.springframework.stereotype.Service;
 
 import com.letstrade.domain.OrderStatus;
 import com.letstrade.domain.OrderType;
+import com.letstrade.domain.WalletTransactionType;
 import com.letstrade.model.Asset;
 import com.letstrade.model.Coin;
 import com.letstrade.model.Order;
 import com.letstrade.model.OrderItem;
 import com.letstrade.model.User;
+import com.letstrade.model.WalletTransaction;
 import com.letstrade.repository.OrderItemRepository;
 import com.letstrade.repository.OrderRepository;
+import com.letstrade.repository.WalletRepository;
+import com.letstrade.repository.WalletTransactionRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -27,13 +31,22 @@ public class OrderServiceImpl implements OrderService{
     private OrderRepository orderRepository;
 
     @Autowired
+    private WalletRepository walletRepository;
+
+    @Autowired
     private WalletService walletService;
 
     @Autowired 
     private AssetService assetService;
 
     @Autowired
+    private CoinService coinService;
+
+    @Autowired
     private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private WalletTransactionRepository walletTransactionRepository;
 
     @Override
     public Order createOrder(User user, OrderItem orderItem, OrderType orderType) {
@@ -74,7 +87,9 @@ public class OrderServiceImpl implements OrderService{
         if(quantity<=0){
             throw new Exception("Invalid quantity");
         }
+
         double buyPrice = coin.getCurrentPrice();
+        double amount = buyPrice*quantity;
 
         OrderItem orderItem = createOrderItem(coin, quantity, buyPrice, 0);
 
@@ -96,7 +111,12 @@ public class OrderServiceImpl implements OrderService{
         else{
             assetService.updateAsset(oldAsset.getId(),quantity);
         }
-
+        WalletTransaction walletTransaction = new WalletTransaction();
+        walletTransaction.setWallet(walletRepository.findByUserId(user.getId()));
+        walletTransaction.setType(WalletTransactionType.BUY_ASSET);
+        walletTransaction.setDate(LocalDateTime.now());
+        walletTransaction.setAmount(amount);
+        walletTransactionRepository.save(walletTransaction);
         return savedOrder;        
     }
 
@@ -127,6 +147,15 @@ public class OrderServiceImpl implements OrderService{
                 if(updatedAsset.getQuantity()*coin.getCurrentPrice()<=1){
                     assetService.deleteAsset(updatedAsset.getId());
                 }
+
+                double amount = buyPrice*quantity;
+                WalletTransaction walletTransaction = new WalletTransaction();
+                walletTransaction.setWallet(walletRepository.findByUserId(user.getId()));
+                walletTransaction.setType(WalletTransactionType.SELL_ASSET);
+                walletTransaction.setDate(LocalDateTime.now());
+                walletTransaction.setAmount(amount);
+
+                walletTransactionRepository.save(walletTransaction);
                 return savedOrder;
             }
             throw new Exception("Insufficient Quantity to sell");

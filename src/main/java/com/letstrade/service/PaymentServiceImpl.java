@@ -32,7 +32,7 @@ public class PaymentServiceImpl implements PaymentService{
         paymentOrder.setUser(user);
         paymentOrder.setAmount(amount);
         paymentOrder.setPaymentMethod(paymentMethod);
-
+        paymentOrder.setStatus(PaymentOrderStatus.PENDING);
         return paymentOrderRepository.save(paymentOrder);
     }
 
@@ -43,8 +43,11 @@ public class PaymentServiceImpl implements PaymentService{
     }
 
     @Override
-    public Boolean proceedPaymentOrder(PaymentOrder paymentOrder, String paymentId){
+    public Boolean proceedPaymentOrder(PaymentOrder paymentOrder){
         
+        if(paymentOrder.getStatus()==null){
+            paymentOrder.setStatus(PaymentOrderStatus.PENDING);
+        }
         if(paymentOrder.getStatus().equals(PaymentOrderStatus.PENDING)){
             paymentOrder.setStatus(PaymentOrderStatus.SUCCESS);
             paymentOrderRepository.save(paymentOrder);

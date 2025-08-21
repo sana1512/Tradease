@@ -20,7 +20,6 @@ import com.letstrade.service.UserService;
 import com.letstrade.service.WalletService;
 import com.letstrade.service.WithdrawalService;
 
-import lombok.With;
 
 @RestController
 @RequestMapping("/api/withdrawal")
@@ -35,7 +34,7 @@ public class WithdrawalController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/api/withdrawal/{amount}")
+    @PostMapping("/{amount}")
     public ResponseEntity<?> withdrawalRequest(@PathVariable Long amount, @RequestHeader("Authorization") String jwt) throws Exception{
 
         User user = userService.findUserProfileByJwt(jwt);
@@ -44,9 +43,7 @@ public class WithdrawalController {
 
         Withdrawal withdrawal = withdrawalService.requestWithdrawal(amount, user);
 
-        walletService.addBalance(userWallet, -withdrawal.getAmount());
-
-        //d
+        walletService.addBalance(userWallet, -withdrawal.getAmount(), null);
 
         return new ResponseEntity<>(withdrawal, HttpStatus.OK);
     }
@@ -64,13 +61,13 @@ public class WithdrawalController {
             Wallet userWallet = walletService.getUserWallet(user);
 
             if(!accept){
-                walletService.addBalance(userWallet, withdrawal.getAmount());
+                walletService.addBalance(userWallet, withdrawal.getAmount(), null);
             }
 
             return new ResponseEntity<>(withdrawal, HttpStatus.OK);
     }
 
-    @GetMapping("/api/admin/withdrawal")
+    @GetMapping("")
     public ResponseEntity<List<Withdrawal>> getWithdrawalHistory(@RequestHeader("Authorization")String jwt) throws Exception{
 
         User user = userService.findUserProfileByJwt(jwt);
